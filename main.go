@@ -15,9 +15,13 @@
 // You can add more analyzers, checkout sevki.org/joker/analyzers
 // for interface definition for analyzers.
 //
-// sevki.org/joker/analyzers/jshint is a reference implementation of
-// what a analyzer should look like.
-
+// http://sevki.org/joker/analyzers/jshint is a reference
+// implementation of what a analyzer should look like.
+//
+// This app should be run by a CI after you've pushed your changes
+// because its sole function is to comment on diffs.
+//
+// Create a token by going to http://github.com/settings/tokens/new
 package main // import "sevki.org/joker"
 
 import (

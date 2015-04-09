@@ -1,3 +1,14 @@
+// Copyright 2015 Sevki <s@sevki.org>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package jshint is a wrapper around `jshint` and `jsxhint` cmdlets, to
+// install them:
+//
+// 	npm install -g jshint
+//
+// they should be present in `$PATH`. It is higly advised that you also
+// have a `.jshintrc` file.
 package jshint
 
 import (

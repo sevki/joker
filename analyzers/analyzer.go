@@ -1,3 +1,11 @@
+// Copyright 2015 Sevki <s@sevki.org>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package analyzers define how analyzers should act. Analyzers
+// implement `scanner` interface. They must also register their
+// initfunctions so they can be initialized. see
+// https://sevki.org/joker/analyzers/jshint for reference.
 package analyzers
 
 // Github comment structure.
