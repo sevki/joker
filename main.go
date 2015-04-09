@@ -6,16 +6,18 @@
 // Usage:
 //
 //	joker -repo=douchejs \
-//            -owner=superjsdev2015 \
-//            -token={token}
-//            -commit=`git describe --always` \
-//            -scanner=jshint
-//            jsxhint --harmony .
+//		-owner=superjsdev2015 \
+//		-token={token}
+//		-commit=`git describe --always` \
+//		-scanner=jshint
+//		jsxhint --harmony .
 //
-// you can add more analyzerss. checkout sevki.org/jocker/analyzers
-// for interface definition for writing plugins. You can also check
-// the sevki.org/joker/analyzers/jshint for a reference implementation
-// of a scanner.
+// You can add more analyzers, checkout sevki.org/joker/analyzers
+// for interface definition for analyzers.
+//
+// sevki.org/joker/analyzers/jshint is a reference implementation of
+// what a analyzer should look like.
+
 package main // import "sevki.org/joker"
 
 import (
