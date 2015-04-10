@@ -30,7 +30,7 @@ import (
 
 	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"
-	"golang.org/x/codereview/patch"
+	"github.com/sourcegraph/go-diff/diff"
 	"sevki.org/joker/analyzers"
 	_ "sevki.org/joker/analyzers/jshint"
 )
@@ -52,7 +52,9 @@ func main() {
 
 	client = github.NewClient(t.Client())
 
-	commit, _, err := client.Repositories.GetCommit(*owner, *repo, *sha)
+	commit, _, err :=
+		client.Repositories.GetCommit(*owner, *repo, *sha)
+
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -64,22 +66,25 @@ func main() {
 }
 
 func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
+
 	// Check IF the file has changed
 	for _, k := range commit.Files {
+
 		if *k.Filename == msg.Filename {
 			// Parse the file patch
-			text, _ := patch.ParseTextDiff([]byte(*k.Patch))
-			for _, i := range text {
-				//  Check if the line has changed
-				if i.Line == msg.Line {
-					goto POST
-				}
+			pdiff, _ := diff.ParseHunks([]byte(*k.Patch))
+
+			for _, i := range pdiff {
+				msg.DiffLine = diffLine(i.Body, i.NewStartLine, msg.Line)
+				goto POST
 			}
 		}
 	}
-	return
-POST:
 
+POST:
+	if msg.DiffLine < 0 {
+		return
+	}
 	_, _, err := client.Repositories.CreateComment(
 		*owner,
 		*repo,
@@ -87,7 +92,7 @@ POST:
 		&github.RepositoryComment{
 			Body:     &msg.Body,
 			Path:     &msg.Filename,
-			Position: &msg.Line,
+			Position: &msg.DiffLine,
 		})
 	if err != nil {
 		log.Println(err.Error())

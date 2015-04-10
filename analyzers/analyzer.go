@@ -13,6 +13,7 @@ type Message struct {
 	Body     string
 	Filename string
 	Line     int
+	DiffLine int
 	// Github doesn't care about this in commits.
 	Col int
 }
