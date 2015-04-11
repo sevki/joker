@@ -2,4 +2,4 @@ language: go
 
 go:
   - tip
-script: go build -v
+script: GOPATH=`godep path`:$GOPATH go build -v
