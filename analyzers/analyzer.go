@@ -8,12 +8,18 @@
 // https://sevki.org/joker/analyzers/jshint for reference.
 package analyzers
 
-// Github comment structure.
+import (
+	"sevki.org/joker/git"
+)
+
+// Message represents a Github comment structure.
 type Message struct {
 	Body     string
 	Filename string
 	Line     int
 	DiffLine int
+	Asignee  string
+	Issue    bool
 	// Github doesn't care about this in commits.
 	Col int
 }
@@ -30,12 +36,16 @@ func init() {
 	analysers = make(map[string]InitFunc)
 }
 
-type InitFunc func() Scanner
+// InitFunc type that scanners must implement
+type InitFunc func(changeset git.ChangeSet) Scanner
 
-func GetScanner(scnr string) Scanner {
-	a := analysers[scnr]()
+//GetScanner initializes scanner for a fileset.
+func GetScanner(scnr string, changeSet git.ChangeSet) Scanner {
+	a := analysers[scnr](changeSet)
 	return a
 }
+
+//Register registers a scanner to be used.
 func Register(scnr string, scnrFunc InitFunc) {
 	analysers[scnr] = scnrFunc
 }

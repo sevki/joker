@@ -17,18 +17,31 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"path"
 	"strings"
 
 	"sevki.org/joker/analyzers"
+	"sevki.org/joker/git"
 )
 
-type JSHintAnalyzer struct {
+type analyzer struct {
 	scnr      bufio.Scanner
 	msgBuffer analyzers.Message
 }
 
-func Init() analyzers.Scanner {
-	cmd := exec.Command(flag.Args()[0], flag.Args()[1:]...)
+// Init implements the analyzer interface
+func Init(changeSet git.ChangeSet) analyzers.Scanner {
+	var filtered []string
+	for _, k := range changeSet {
+		switch path.Ext(*k.Filename) {
+		case path.Ext("main.js"):
+			filtered = append(filtered, *k.Filename)
+		case path.Ext("app.jsx"):
+			filtered = append(filtered, *k.Filename)
+		}
+	}
+	args := append(flag.Args()[1:], filtered...)
+	cmd := exec.Command(flag.Args()[0], args...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -38,13 +51,13 @@ func Init() analyzers.Scanner {
 		log.Fatal(err)
 	}
 
-	return &JSHintAnalyzer{scnr: *bufio.NewScanner(stdout)}
+	return &analyzer{scnr: *bufio.NewScanner(stdout)}
 }
 func init() {
 	analyzers.Register("jshint", Init)
 	analyzers.Register("jsxhint", Init)
 }
-func (j *JSHintAnalyzer) Scan() bool {
+func (j *analyzer) Scan() bool {
 
 	j.scnr.Scan()
 	str := j.scnr.Text()
@@ -60,6 +73,6 @@ func (j *JSHintAnalyzer) Scan() bool {
 	j.msgBuffer = msg
 	return true
 }
-func (j *JSHintAnalyzer) Message() analyzers.Message {
+func (j *analyzer) Message() analyzers.Message {
 	return j.msgBuffer
 }

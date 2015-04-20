@@ -26,13 +26,15 @@ package main // import "sevki.org/joker"
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"
-	"github.com/sourcegraph/go-diff/diff"
 	"sevki.org/joker/analyzers"
 	_ "sevki.org/joker/analyzers/jshint"
+	_ "sevki.org/joker/analyzers/todo"
+	"sevki.org/joker/git"
 )
 
 var (
@@ -58,7 +60,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	scanner := analyzers.GetScanner(*scnr)
+	scanner := analyzers.GetScanner(*scnr, commit.Files)
 
 	for scanner.Scan() {
 		comment(scanner.Message(), commit)
@@ -67,34 +69,45 @@ func main() {
 
 func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
 
-	// Check IF the file has changed
-	for _, k := range commit.Files {
-
-		if *k.Filename == msg.Filename {
-			// Parse the file patch
-			pdiff, _ := diff.ParseHunks([]byte(*k.Patch))
-
-			for _, i := range pdiff {
-				msg.DiffLine = diffLine(i.Body, i.NewStartLine, msg.Line)
-				goto POST
-			}
+	if msg.Issue {
+		body := fmt.Sprintf(
+			"https://github.com/%s/%s/blob/%s/%s#L%d",
+			*owner,
+			*repo,
+			*sha,
+			msg.Filename,
+			msg.Line,
+		)
+		_, _, err := client.Issues.Create(
+			*owner,
+			*repo,
+			&github.IssueRequest{
+				Title:    &msg.Body,
+				Body:     &body,
+				Assignee: &msg.Asignee,
+				Labels:   []string{"TODO"},
+			},
+		)
+		if err != nil {
+			log.Println(err.Error())
 		}
-	}
 
-POST:
-	if msg.DiffLine < 0 {
-		return
-	}
-	_, _, err := client.Repositories.CreateComment(
-		*owner,
-		*repo,
-		*commit.SHA,
-		&github.RepositoryComment{
-			Body:     &msg.Body,
-			Path:     &msg.Filename,
-			Position: &msg.DiffLine,
-		})
-	if err != nil {
-		log.Println(err.Error())
+	} else {
+		msg.DiffLine = git.LineIsNew(commit, msg.Line, msg.Filename)
+		if msg.DiffLine < 0 {
+			return
+		}
+		_, _, err := client.Repositories.CreateComment(
+			*owner,
+			*repo,
+			*commit.SHA,
+			&github.RepositoryComment{
+				Body:     &msg.Body,
+				Path:     &msg.Filename,
+				Position: &msg.DiffLine,
+			})
+		if err != nil {
+			log.Println(err.Error())
+		}
 	}
 }
