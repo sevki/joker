@@ -14,7 +14,7 @@ type ChangeSet []github.CommitFile
 // DiffLine returns the corresponding DiffLine
 func DiffLine(bz []byte, s, l int) int {
 	buf := bytes.NewBuffer(bz)
-	n := s
+	n := s - 1
 	t := 0
 	scanner := bufio.NewScanner(buf)
 	for scanner.Scan() {
