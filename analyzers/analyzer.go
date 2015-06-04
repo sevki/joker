@@ -16,7 +16,7 @@ import (
 type Message struct {
 	Body     string
 	Filename string
-	Line     int
+	Line     int32
 	DiffLine int
 	Asignee  string
 	Issue    bool

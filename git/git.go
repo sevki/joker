@@ -12,7 +12,7 @@ import (
 type ChangeSet []github.CommitFile
 
 // DiffLine returns the corresponding DiffLine
-func DiffLine(bz []byte, s, l int) int {
+func DiffLine(bz []byte, s int32, l int32) int {
 	buf := bytes.NewBuffer(bz)
 	n := s - 1
 	t := 0
@@ -72,7 +72,7 @@ func ChangedFiles(fs []github.CommitFile) (changeset []string) {
 }
 
 // LineIsNew returns true if the line
-func LineIsNew(commit *github.RepositoryCommit, l int, f string) int {
+func LineIsNew(commit *github.RepositoryCommit, l int32, f string) int {
 
 	// Check IF the file has changed
 	for _, k := range commit.Files {
