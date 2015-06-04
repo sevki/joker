@@ -85,7 +85,7 @@ func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
 				Title:    &msg.Body,
 				Body:     &body,
 				Assignee: &msg.Asignee,
-				Labels:   []string{"TODO"},
+				Labels:   &[]string{"TODO"},
 			},
 		)
 		if err != nil {
