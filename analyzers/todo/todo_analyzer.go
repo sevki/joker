@@ -11,8 +11,8 @@ import (
 	"bufio"
 	"bytes"
 
-	"github.com/sourcegraph/go-diff/diff"
 	"sevki.org/joker/git"
+	"sourcegraph.com/sourcegraph/go-diff/diff"
 
 	"sevki.org/joker/analyzers"
 )

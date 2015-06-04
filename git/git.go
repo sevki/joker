@@ -5,7 +5,7 @@ import (
 	"bytes"
 
 	"github.com/google/go-github/github"
-	"github.com/sourcegraph/go-diff/diff"
+	"sourcegraph.com/sourcegraph/go-diff/diff"
 )
 
 // ChangeSet represents a set of files that have changed.
