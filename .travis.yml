@@ -1,14 +1,18 @@
 language: go
-
 go:
-  - 1.3
-  - 1.4
-
+- 1.3
+- 1.4
 install:
-  - export GOPATH="$HOME/gopath"
-  - mkdir -p "$GOPATH/src/sevki.org/"
-  - mv "$TRAVIS_BUILD_DIR" "$GOPATH/src/sevki.org/joker"
-  - go get -v -t -d sevki.org/joker/...
-
+- export GOPATH="$HOME/gopath"
+- mkdir -p "$GOPATH/src/sevki.org/"
+- mv "$TRAVIS_BUILD_DIR" "$GOPATH/src/sevki.org/joker"
+- go get -v -t -d sevki.org/joker/...
 script:
-  - go test -v sevki.org/joker/...
+- go test -v sevki.org/joker/...
+deploy:
+  provider: releases
+  api_key:
+    secure: p1U0qMkENlwdfLo5ZPjPEvGC/RLOWETObIyVv/waKDQqxAD2UoQcOtJUCQI0E4uARz5QWEPDDOXi1iCvZBMTi1U8Wr3bAPZjk3Q7kiBkcqqJgymU5//k5u0m30g0lNNAHdqF+99DlTJQlErkRO7Tzu3H/aC5Y5geItrr8VykVas=
+  file: $HOME/gopath/bin/joker
+  on:
+    repo: sevki/joker
