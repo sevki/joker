@@ -7,9 +7,9 @@
 //
 //	joker -repo=douchejs \
 //		-owner=superjsdev2015 \
-//		-token={token}
+//		-token={token} \
 //		-commit=`git describe --always` \
-//		-scanner=jshint
+//		-scanner=jshint \
 //		jsxhint --harmony .
 //
 // You can add more analyzers, checkout sevki.org/joker/analyzers
@@ -22,6 +22,8 @@
 // because its sole function is to comment on diffs.
 //
 // Create a token by going to http://github.com/settings/tokens/new
+//
+// Available analyzers are golint, todo, jshint
 package main // import "sevki.org/joker"
 
 import (
@@ -32,6 +34,7 @@ import (
 	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"
 	"sevki.org/joker/analyzers"
+	_ "sevki.org/joker/analyzers/golint"
 	_ "sevki.org/joker/analyzers/jshint"
 	_ "sevki.org/joker/analyzers/todo"
 	"sevki.org/joker/git"
@@ -60,8 +63,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	scanner := analyzers.GetScanner(*scnr, commit.Files)
-
+	scanner, err := analyzers.GetScanner(*scnr, commit.Files)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	for scanner.Scan() {
 		comment(scanner.Message(), commit)
 	}

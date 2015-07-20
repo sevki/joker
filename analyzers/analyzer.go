@@ -9,6 +9,8 @@
 package analyzers
 
 import (
+	"errors"
+
 	"sevki.org/joker/git"
 )
 
@@ -40,9 +42,12 @@ func init() {
 type InitFunc func(changeset git.ChangeSet) Scanner
 
 //GetScanner initializes scanner for a fileset.
-func GetScanner(scnr string, changeSet git.ChangeSet) Scanner {
-	a := analysers[scnr](changeSet)
-	return a
+func GetScanner(scnr string, changeSet git.ChangeSet) (Scanner, error) {
+	if val, ok := analysers[scnr]; ok {
+		return val(changeSet), nil
+	} else {
+		return nil, errors.New("Scanner not found")
+	}
 }
 
 //Register registers a scanner to be used.
