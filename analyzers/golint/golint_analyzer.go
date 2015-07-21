@@ -22,6 +22,10 @@ type analyzer struct {
 	msgs []analyzers.Message
 }
 
+var (
+	context = "joker-golint"
+)
+
 // Init implements the analyzer interface
 func Init(changeSet git.ChangeSet) analyzers.Scanner {
 
@@ -57,6 +61,7 @@ func Init(changeSet git.ChangeSet) analyzers.Scanner {
 			Issue:    false,
 		})
 	}
+
 	return &analyzer{msgs: msgs}
 }
 func init() {

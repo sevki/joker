@@ -69,6 +69,7 @@ func (j *analyzer) Scan() bool {
 	if msg.Line == 0 {
 		return false
 	}
+
 	msg.Body = str[n:]
 	j.msgBuffer = msg
 	return true

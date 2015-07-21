@@ -46,6 +46,7 @@ var (
 	owner  = flag.String("owner", "", "owner")
 	token  = flag.String("token", "", "token")
 	sha    = flag.String("commit", "deadbeef", "commit")
+	pr     = flag.Int("pr", 0, "pullrequest")
 	scnr   = flag.String("scanner", "", "scanner")
 )
 
@@ -56,23 +57,73 @@ func main() {
 	}
 
 	client = github.NewClient(t.Client())
+	context := fmt.Sprintf("joker-%s", *scnr)
+	var commits []github.RepositoryCommit
+	if *pr == 0 {
+		commit, _, err :=
+			client.Repositories.GetCommit(*owner, *repo, *sha)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		commits = append(commits, *commit)
+	} else {
 
-	commit, _, err :=
-		client.Repositories.GetCommit(*owner, *repo, *sha)
+		cmts, _, err := client.PullRequests.ListCommits(*owner, *repo, *pr, nil)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		for _, c := range cmts {
+			statuses, _, err := client.Repositories.ListStatuses(*owner, *repo, *c.SHA, nil)
+			skip := false
+			for _, status := range statuses {
+				if *status.Context == context {
+					skip = true
+				}
+			}
+			if skip {
+				continue
+			}
+			commit, _, err :=
+				client.Repositories.GetCommit(*owner, *repo, *c.SHA)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
 
-	if err != nil {
-		log.Fatal(err.Error())
+			commits = append(commits, *commit)
+		}
 	}
-	scanner, err := analyzers.GetScanner(*scnr, commit.Files)
-	if err != nil {
-		log.Fatal(err.Error())
+	for _, commit := range commits {
+		scanner, err := analyzers.GetScanner(*scnr, commit.Files)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		issuesPosted := 0
+		for scanner.Scan() {
+			if comment(scanner.Message(), &commit) {
+				issuesPosted += 1
+			}
+		}
+		msg := fmt.Sprintf("%s has found %d error(s).", *scnr, issuesPosted)
+		url := fmt.Sprintf("https://github.com/%s/%s/commit/%s", *owner, *repo, *commit.SHA)
+		state := "success"
+		if issuesPosted > 0 {
+			state = "error"
+		}
+		client.Repositories.CreateStatus(*owner,
+			*repo,
+			*commit.SHA,
+			&github.RepoStatus{
+				Context:     &context,
+				URL:         &url,
+				Description: &msg,
+				State:       &state,
+			})
+
 	}
-	for scanner.Scan() {
-		comment(scanner.Message(), commit)
-	}
+
 }
 
-func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
+func comment(msg analyzers.Message, commit *github.RepositoryCommit) bool {
 
 	if msg.Issue {
 		body := fmt.Sprintf(
@@ -98,10 +149,12 @@ func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
 		}
 
 	} else {
+
 		msg.DiffLine = git.LineIsNew(commit, msg.Line, msg.Filename)
 		if msg.DiffLine < 0 {
-			return
+			return false
 		}
+		log.Println(msg)
 		_, _, err := client.Repositories.CreateComment(
 			*owner,
 			*repo,
@@ -115,4 +168,5 @@ func comment(msg analyzers.Message, commit *github.RepositoryCommit) {
 			log.Println(err.Error())
 		}
 	}
+	return true
 }
