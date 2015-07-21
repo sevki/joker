@@ -31,8 +31,8 @@ import (
 	"fmt"
 	"log"
 
-	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"sevki.org/joker/analyzers"
 	_ "sevki.org/joker/analyzers/golint"
 	_ "sevki.org/joker/analyzers/jshint"
@@ -52,11 +52,12 @@ var (
 
 func main() {
 	flag.Parse()
-	t := &oauth.Transport{
-		Token: &oauth.Token{AccessToken: *token},
-	}
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: *token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
-	client = github.NewClient(t.Client())
+	client := github.NewClient(tc)
 	context := fmt.Sprintf("joker-%s", *scnr)
 	var commits []github.RepositoryCommit
 	if *pr == 0 {
