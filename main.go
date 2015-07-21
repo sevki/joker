@@ -154,7 +154,6 @@ func comment(msg analyzers.Message, commit *github.RepositoryCommit) bool {
 		if msg.DiffLine < 0 {
 			return false
 		}
-		log.Println(msg)
 		_, _, err := client.Repositories.CreateComment(
 			*owner,
 			*repo,
