@@ -14,6 +14,6 @@ deploy:
   api_key:
     secure: p1U0qMkENlwdfLo5ZPjPEvGC/RLOWETObIyVv/waKDQqxAD2UoQcOtJUCQI0E4uARz5QWEPDDOXi1iCvZBMTi1U8Wr3bAPZjk3Q7kiBkcqqJgymU5//k5u0m30g0lNNAHdqF+99DlTJQlErkRO7Tzu3H/aC5Y5geItrr8VykVas=
   file: 
-    $HOME/gopath/bin/joker
+    /home/travis/gopath/bin/joker
   on:
     repo: sevki/joker
