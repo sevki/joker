@@ -5,7 +5,7 @@
 // joker reads from io.Reader's and comments on diffs inline on github.
 // Usage:
 //
-//	joker -repo=douchejs \
+//	joker	-repo=douchejs \
 //		-owner=superjsdev2015 \
 //		-token={token} \
 //		-commit=`git describe --always` \
