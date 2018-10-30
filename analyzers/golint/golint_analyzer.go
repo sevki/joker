@@ -13,7 +13,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/golang/lint"
+	"golang.org/x/lint"
 	"sevki.org/joker/analyzers"
 	"sevki.org/joker/git"
 )
